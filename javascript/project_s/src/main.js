@@ -1,6 +1,10 @@
+#!/usr/bin/env node
 
 // taking input from user
 // process.argv[2] from command line
+
+
+//! most important devops use ->  #!/usr/bin/env node
 
 let inputArr = process.argv.slice(2);
 
@@ -43,8 +47,58 @@ switch(command){
         break;
 }
 
+// help implemented
+function helpFn(){
+    console.log(`
+                List of All the commands: 
+
+                node main.js tree 'directoryPath'
+                node main.js organize directoryPath'
+                node main.js help
+                
+                `)
+}
+
 function treeFn(dirPath){
-    console.log('Tree command implemented for', dirPath)
+
+    // let destPath;
+if(dirPath == undefined){
+    // console.log('Please provide path')
+    treeHelper(process.cwd(),'') ;
+    return;
+}else{
+    let doesExist = fs.existsSync(dirPath)
+
+    if(doesExist){
+        
+        treeHelper(dirPath,'')
+    }
+}
+
+}
+
+function treeHelper(dirPath,indent){
+
+    // is file or folder
+
+    let isFile = fs.lstatSync(dirPath).isFile();
+
+    if(isFile)
+    {
+        let fileName = path.basename(dirPath)
+        console.log(indent+"|-- "+fileName)
+    }else{
+        let dirName = path.basename(dirPath)
+        console.log(indent+"'-- "+dirName)
+
+        let childrens = fs.readdirSync(dirPath)
+
+        for(let i = 0; i<childrens.length;i++)
+        {
+            let childPath = path.join(dirPath,childrens[i])
+            treeHelper(childPath, indent+'\t')
+        }
+    }
 }
 
 function oraganizeFn(dirPath){
@@ -56,6 +110,7 @@ function oraganizeFn(dirPath){
     let destPath;
     if(dirPath == undefined){
 
+        destPath = process.cwd()
         console.log('Kindly enter the path')
         return
         
@@ -108,18 +163,6 @@ function oraganizeHelper(src, dest){
 
 }
 
-// help implemented
-function helpFn(){
-    console.log(`
-                List of All the commands: 
-
-                node main.js tree 'directoryPath'
-                node main.js organize directoryPath'
-                node main.js help
-                
-                `)
-}
-
 function getCategory(name){
     let ext =path.extname(name)
     console.log(ext)
@@ -157,3 +200,11 @@ function sendFiles(srcFilePath, dest, category){
     console.log(srcFilePath,"belongs to",destFilePath)
 
 }
+
+
+
+// to make it global
+// 1. in terminal initialize npm inti -y
+// 2. add #!/usr/bin/env node to applicaition
+// 3. in package add bin : {"roar": "main.js"}
+// 4. in terminal to link the link the app use -> npm link 
